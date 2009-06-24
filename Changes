@@ -5,3 +5,6 @@ Revision history for like
 
 0.02    2009-06-24
         - Don't clobber existing @ISA for interface class.
+
+0.03    2009-06-24
+        - Added things_like.

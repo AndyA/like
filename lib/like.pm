@@ -4,6 +4,10 @@ use latest;
 
 use Carp;
 
+use base qw( Exporter );
+
+our @EXPORT_OK = qw( things_like );
+
 =head1 NAME
 
 like - Declare support for an interface
@@ -55,19 +59,52 @@ interface installed.
 There is no test that your package really does conform to any interface
 (see L<Moose>); you're just declaring your intent.
 
+=head1 INTERFACE
+
 =cut
 
 sub import {
   my ( $class, @isa ) = @_;
-  my $caller = caller;
-  no strict 'refs';
-  for my $isa ( @isa ) {
-    @{"${isa}::ISA"} = () unless @{"${isa}::ISA"};
+  if ( @isa ) {
+    my $caller = caller;
+    no strict 'refs';
+    for my $isa ( @isa ) {
+      @{"${isa}::ISA"} = () unless @{"${isa}::ISA"};
+    }
+    push @{"${caller}::ISA"}, @isa;
   }
-  push @{"${caller}::ISA"}, @isa;
+  return __PACKAGE__->export_to_level( 1, $class, 'things_like' );
+}
+
+=head2 C<things_like>
+
+Get a list of classes that claim to implement a trait.
+
+  my @t = things_like 'some::interface';
+
+=cut
+
+sub things_like($) {
+  my $trait = shift;
+  return grep $_ ne $trait && $_->isa( $trait ),
+   _walk_stash( $main::{'main::'} );
+}
+
+sub _walk_stash {
+  my ( $node, @path ) = @_;
+  my @pkg = ();
+
+  for my $ns ( sort grep /::$/, keys %$node ) {
+    next if $ns eq 'main::';
+    ( my $name = join '', @path, $ns ) =~ s/::$//;
+    push @pkg, $name, _walk_stash( $node->{$ns}, @path, $ns );
+  }
+
+  return @pkg;
 }
 
 1;
+
 __END__
 
 =head1 CONFIGURATION AND ENVIRONMENT
