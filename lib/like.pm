@@ -62,7 +62,7 @@ sub import {
   my $caller = caller;
   no strict 'refs';
   for my $isa ( @isa ) {
-    @{"${isa}::ISA"} = ();
+    @{"${isa}::ISA"} = () unless @{"${isa}::ISA"};
   }
   push @{"${caller}::ISA"}, @isa;
 }
