@@ -10,11 +10,11 @@ like - Declare support for an interface
 
 =head1 VERSION
 
-This document describes like version 0.01
+This document describes like version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
